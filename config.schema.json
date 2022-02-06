@@ -1,0 +1,64 @@
+{
+  "pluginAlias": "WyzeRoboVac",
+  "pluginType": "platform",
+  "singular": true,
+  "schema": {
+    "type": "object",
+    "properties": {
+      "name": {
+        "title": "WyzeRoboVac",
+        "description": "This name will appear in your Homebridge log",
+        "type": "string",
+        "default": "WyzeRoboVac",
+        "required": true
+      },
+      "username": {
+        "title": "Username (E-Mail Address)",
+        "description": "The e-mail address used for your Wyze account",
+        "type": "string",
+        "default": "",
+        "required": true
+      },
+      "password": {
+        "title": "Password",
+        "description": "The password used for your Wyze account",
+        "type": "string",
+        "default": "",
+        "required": true
+      },
+      "mfaCode": {
+        "title": "One-time Password (for two-factor authentication)",
+        "description": "Only required for initial login if you have two-factor authentication enabled on your Wyze account",
+        "type": "string",
+        "default": "",
+        "required": false
+      },
+      "refreshInterval": {
+        "title": "Refresh Interval",
+        "description": "Specify the number of milliseconds to wait between status checks, default is 30000 ms (30 seconds). Minimum is 10000ms (10 seconds)",
+        "type": "integer",
+        "default": 30000,
+        "required": false,
+        "minimum": 10000
+      },
+      "path2py_stubs": {
+        "title": "Path to Python helper scripts",
+        "description": "The location where the Python helper scripts are installed",
+        "type": "string",
+        "default": "/usr/lib/node_modules/homebridge-wyze-robovac/py_helpers",
+        "required": true
+      },
+      "debugLevel": {
+        "title": "Debug Level",
+        "description": "Specify the Debug Level. 0 ==> no debug output, 1 ==> debug output to Homebridge logfile, 2 ==> system level logging",
+        "type": "integer",
+        "default": 0,
+        "required": false,
+        "minimum": 0,
+        "maximum": 2
+      }
+    }
+  },
+  "form": null,
+  "display": null
+}
