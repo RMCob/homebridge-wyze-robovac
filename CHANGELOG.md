@@ -2,6 +2,12 @@
 
 All changes to the software will be documented here.
 
+## V0.0.5 
+- First 'official' release' 
+
+## V0.0.5-0 
+- No changes. Working out the kinks of the publish/delivery process
+
 ## V0.0.4-beta
 - config.schema.json - Added debugLevel to Settings options.
 - platform.ts - Added config checks. If all required config parameters are not set, do not start the plugin.

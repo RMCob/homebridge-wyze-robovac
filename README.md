@@ -35,8 +35,6 @@ The Wyze API indicates the vacuum is sweeping but does not return any 'room' inf
 
 If you start the vacuum sweeping and then try to turn on a different room 'switch' (i.e. - pick a different room), the second switch will turn off with an '!' in the icon, indicating the error. To change rooms, first turn off the room that's being swept.
 
-The first release is more of a beta trial with a ton of debugging turned on. Once I get some feedback I will release an official version with the debugging turned down.
-
 ## Configuration
 
 Use the settings UI in Homebridge Config UI X to configure your Wyze account, or manually add the following to the platforms section of your config file:
