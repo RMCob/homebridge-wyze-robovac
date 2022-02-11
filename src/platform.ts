@@ -24,9 +24,9 @@ export class WyzeRoboVac implements DynamicPlatformPlugin {
     public readonly api: API,
   ) {
     // Validate configuration
-    if ( this.config.username === undefined || this.config.password === undefined ) {
+    if ( this.config.name === undefined || this.config.username === undefined || this.config.password === undefined ) {
       log.error('INVALID CONFIGURATION FOR PLUGIN: homebridge-wyze-robovac');
-      log.error('Username and/or Password not set. Plugin not started.');
+      log.error('name, username and/or password not set. Plugin not started.');
       return;
     }
 
