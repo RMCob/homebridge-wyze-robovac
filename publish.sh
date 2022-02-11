@@ -1,9 +1,8 @@
 #! /bin/sh
 # Stolen from  NorthernMan54/homebridge-tasmota
 
-if npm audit; then
-  echo "Not publishing due to npm audit failure"
-fi
+npm audit
+
 if  npm run lint; then
   if npm run build; then
     git add .
