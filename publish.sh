@@ -9,7 +9,7 @@ if  npm run lint; then
     npm version patch -m "$1" --force
     npm publish --tag latest
     git commit -m "$1"
-    git push origin master --tags
+    git push "https://github.com/RMCob/homebridge-wyze-robovac.git" master --tags
   else
     echo "Not publishing due to build failure"
   fi
