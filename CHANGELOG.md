@@ -2,7 +2,7 @@
 
 All changes to the software will be documented here.
 
-## V0.0.6 
+## V0.0.7 
 - Check that all required config settings have been supplied before starting plugin.
 
 ## V0.0.5 
