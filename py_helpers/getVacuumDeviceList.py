@@ -1,7 +1,7 @@
 import os
 import sys
 import logging
-import wyze__sdk
+import wyze_sdk
 from wyze_sdk import Client
 from wyze_sdk.errors import WyzeApiError
 
