@@ -5,7 +5,7 @@ All changes to the software will be documented here.
 ## V0.0.9 
 - Fixed typo in getVacuumDeviceList.py
 
-## V0.0.7 
+## V0.0.8 
 - Check that all required config settings have been supplied before starting plugin.
 
 ## V0.0.5 
@@ -24,3 +24,4 @@ All changes to the software will be documented here.
 
 ## V0.0.2-beta:
 - First working build with full functionality
+
