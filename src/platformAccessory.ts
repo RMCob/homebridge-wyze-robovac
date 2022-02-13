@@ -165,6 +165,8 @@ export class VacuumRoom {
               if( this.currentStatus !== 'VacuumMode.SWEEPING' ) {
                 isSweeping = false;
                 clearInterval( intervalID );  // Stop checking.
+                this.myLogger('in setInterval(): Clearing currentRoomName, turning switch icon off');
+                this.robovac.setCurrentRoomName( '', this.deviceNickname );
                 this.service.getCharacteristic(this.robovac.Characteristic.On).updateValue(false); // Turn the switch icon off
               }
             } else {              // Waiting for vacuum to start

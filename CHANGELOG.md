@@ -2,6 +2,9 @@
 
 All changes to the software will be documented here.
 
+## V0.0.10 
+- Clear currentRoomName after room sweeping is completed
+
 ## V0.0.9 
 - Fixed typo in getVacuumDeviceList.py
 
