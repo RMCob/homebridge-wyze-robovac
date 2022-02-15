@@ -1,4 +1,9 @@
 # homebridge-wyze-robovac
+[![npm](https://img.shields.io/npm/v/homebridge-wyze-robovac)
+[![npm](https://img.shields.io/npm/dt/homebridge-wyze-robovac)](https://www.npmjs.com/package/homebridge-wyze-robovac)
+[![GitHub last commit](https://img.shields.io/github/last-commit/RMCob/homebridge-wyze-robovac)](https://github.com/RMCob/homebridge-wyze-robovac)
+[![verified-by-homebridge](https://badgen.net/badge/homebridge/verified/purple)](https://github.com/homebridge/homebridge/wiki/Verified-Plugins)
+[![Donate](https://img.shields.io/badge/Donate-PayPal-blue)](https://www.paypal.com/donate/?business=G63Z63BWAJWZN&no_recurring=0&currency_code=USD)
 
 This plugin adds rudimentary support for the Wyze Robot Vacuum device to [Homebridge](https://github.com/homebridge/homebridge).
 

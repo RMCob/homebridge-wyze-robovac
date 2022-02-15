@@ -2,6 +2,9 @@
 
 All changes to the software will be documented here.
 
+## V1.0.0 
+- first 'Homebridge Verified' version. Updated README.md
+
 ## V0.0.10 
 - Clear currentRoomName after room sweeping is completed
 
