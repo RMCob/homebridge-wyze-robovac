@@ -7,10 +7,11 @@ const { exec } = require('child_process');
 
 /**
  * Platform Accessory
- * An instance of this class is created for each accessory your platform registers
+ * An instance of this class is created for each room the platform registers
  */
 export class VacuumRoom {
   private service: Service;
+  private battery;
   private isOn = false;
   private currentStatus = '';
   private accLogName = '';
@@ -32,14 +33,13 @@ export class VacuumRoom {
     // get the Switch service if it exists, otherwise create a new Switch service
     // you can create multiple services for each accessory
     this.service = this.accessory.getService(this.robovac.Service.Switch) || this.accessory.addService(this.robovac.Service.Switch);
-
     // register handlers for the On/Off Characteristic
     this.service.getCharacteristic(this.robovac.Characteristic.On)
       .onSet(this.setOn.bind(this))                // SET - bind to the `setOn` method below
       .onGet(this.getOn.bind(this));               // GET - bind to the `getOn` method below
   }
 
-  /**
+  /*
    * Handle "SET" requests from HomeKit
    * These are sent when the user changes the state of an accessory, for example, turning on a Switch.
    */
@@ -175,7 +175,7 @@ export class VacuumRoom {
               }
             }
           });
-      }, this.robovac.config.refreshInterval);
+      }, this.robovac.config.statusCheckRefreshInterval);
     } else {
       this.robovac.setCurrentRoomName( '', this.deviceNickname );
       this.robovac.log.info(`Stopping sweep of room '${roomName}'(${this.deviceNickname}). Returning to charge...`);
@@ -215,6 +215,86 @@ export class VacuumRoom {
     this.myLogger(`Room '${this.accessory.displayName}'(${this.deviceNickname}): Get Characteristic On -> ${isOn}`);
 
     return isOn;
+  }
+
+  myLogger( line ) {
+    switch( this.robovac.config.debugLevel ) {
+      case 0:   // No logging
+        return;
+        break;
+      case 1:   // Logging to homebridge.log
+        this.robovac.log.info( line );
+        break;
+      case 2:   // Logging to system level logs.
+        this.robovac.log.debug( line );
+        break;
+      default:
+    }
+  }
+}
+
+//
+// Create Humidity Sensor accessory to represent cattery charge level
+//
+export class BatteryLevel {
+  private service: Service;
+  private currentBatteryLevel = 0;
+  private accLogName = '';
+  private p2stubs = this.robovac.config.path2py_stubs;
+  private username = this.robovac.config.username;
+
+  constructor(
+    private readonly robovac: WyzeRoboVac,
+    private readonly accessory: PlatformAccessory,
+    private readonly deviceNickname: string,
+  ) {
+
+    // set accessory information
+    this.accessory.displayName = `BatteryLxvel(${this.deviceNickname})`;
+    this.accessory.getService(this.robovac.Service.AccessoryInformation)!
+      .setCharacteristic(this.robovac.Characteristic.Manufacturer, 'Wyze')
+      .setCharacteristic(this.robovac.Characteristic.Model, 'RoboVac')
+      .setCharacteristic(this.robovac.Characteristic.SerialNumber, 'Default-Serial');
+
+    // get the HumiditySensor service if it exists, otherwise create a new HumiditySensor service
+    // you can create multiple services for each accessory
+    this.service =
+      this.accessory.getService(this.robovac.Service.HumiditySensor) || this.accessory.addService(this.robovac.Service.HumiditySensor);
+
+    // register handler for get Characteristic
+    this.service.getCharacteristic(this.robovac.Characteristic.CurrentRelativeHumidity)
+      .onGet(this.handleCurrentRelativeHumidityGet.bind(this));
+
+    setInterval(() => {
+      let lastValidBatteryLevel = 0;
+      exec(`python3 ${this.p2stubs}/getVacuumBatLevel.py ${this.username} ${this.robovac.config.password} ${this.deviceNickname}`,
+        (error, stdout, stderr) => {
+          if (error) {
+            this.robovac.log.info(`error: ${error.message}`);
+            //return;
+          }
+          if (stderr) {
+            this.robovac.log.info(`stderr: ${stderr}`);
+            //return;
+          }
+
+          this.currentBatteryLevel = stdout.slice(0, -1);  // Strip off trailing newline ('\n')
+          if( isNaN(this.currentBatteryLevel) ) {
+            this.myLogger(`getVacuumBatLevel.py returned NaN, setting this.currentBatteryLevel to '${lastValidBatteryLevel}'`);
+            this.currentBatteryLevel = lastValidBatteryLevel;
+          } else {
+            lastValidBatteryLevel = this.currentBatteryLevel;
+          }
+
+          this.myLogger(`BatteryLevel setInterval(), this.currentBatteryLevel = '${this.currentBatteryLevel}'`);
+          this.service.getCharacteristic(this.robovac.Characteristic.CurrentRelativeHumidity).updateValue(this.currentBatteryLevel);
+        });
+    }, this.robovac.config.batteryCheckRefreshInterval);
+  }
+
+  handleCurrentRelativeHumidityGet() {
+    this.myLogger('Triggered GET CurrentRelativeHumidity');
+    return this.currentBatteryLevel;
   }
 
   myLogger( line ) {

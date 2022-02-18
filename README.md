@@ -9,9 +9,9 @@ This plugin adds rudimentary support for the Wyze Robot Vacuum device to [Homebr
 
 ## Background
 
-Since HomeKit does not yet have a 'smart vacuum' framework, this plugin creates a separate 'switch' accessory for each room in the current Wyze app map for the vacuum. It also adds an "All Rooms" switch to do the entire map. Turning a switch 'On' will tell the vacuum to sweep that room. Turning it 'Off' will tell the vacuum to stop sweeping and return to the charging dock.
+Since HomeKit does not yet have a 'smart vacuum' framework, this plugin creates a separate 'switch' accessory for each room in the current Wyze app map for the vacuum. It also adds an "All Rooms" switch to do the entire map. Turning a switch 'On' will tell the vacuum to sweep that room. Turning it 'Off' will tell the vacuum to stop sweeping and return to the charging dock. In addition, a faux humidity sensor is created to display the vacuum's current battery charge level.
 
-In the Home app, create a room named 'Vacuum' and move all the new switch accessories into that room. You can then say "Hey Siri, vacuum living room on" and the magic happens. :-) If you have multiple vacums the configuration is a bit more involved. See below.
+In the Home app, create a room named 'Vacuum' and move all the new switch accessories and the faux humidity sensor into that room. You can then say "Hey Siri, vacuum living room on" and the magic happens. :-) If you have multiple vacums the configuration is a bit more involved. See below.
 
 ## Requirements
 
@@ -53,7 +53,8 @@ Use the settings UI in Homebridge Config UI X to configure your Wyze account, or
       "username": "YOUR_EMAIL",
       "password": "YOUR_PASSWORD",
       "mfaCode": "YOUR_2FA_AUTHENTICATION_PIN",
-      "refreshInterval": "Refresh Interval. Default 30000mS",
+      "statusCheckRefreshInterval": "Refresh Interval for status checks after sweeping starts. Default 30000mS (30 sec)",
+      "batteryCheckRefreshInterval": "Refresh Interval for battery checks. Default 120000mS (2 min)",
       "path2py_stubs": "Path to Python helper scripts. Default '/usr/lib/node_modules/homebridge-wyze-robovac/py_helpers'",
       "debugLevel": "Can be 0 (no logging), 1 (log.info), or 2 (log.debug)"
     }

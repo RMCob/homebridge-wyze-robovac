@@ -33,13 +33,21 @@
         "default": "",
         "required": false
       },
-      "refreshInterval": {
-        "title": "Refresh Interval",
+      "statusCheckRefreshInterval": {
+        "title": "Status Check Refresh Interval",
         "description": "Specify the number of milliseconds to wait between status checks, default is 30000 ms (30 seconds). Minimum is 10000ms (10 seconds)",
         "type": "integer",
         "default": 30000,
         "required": false,
         "minimum": 10000
+      },
+      "batteryCheckRefreshInterval": {
+        "title": "Battery Check Refresh Interval",
+        "description": "Specify the number of milliseconds to wait between battery checks, default is 120000 ms (2 min). Minimum is 60000ms (1 min)",
+        "type": "integer",
+        "default": 120000,
+        "required": false,
+        "minimum": 60000
       },
       "path2py_stubs": {
         "title": "Path to Python helper scripts",
