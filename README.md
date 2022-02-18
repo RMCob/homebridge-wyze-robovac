@@ -30,7 +30,7 @@ If you have multiple vacuums (one for each floor of your house) you should creat
 
 You can only ask to sweep one room at a time (or All Rooms) for a particular vacuum. Only one 'switch' can be on at a time for the same device.
 
-The refreshInterval indicates how often to check that the vacuum is still sweeping after being started. When the vacuum stops sweeping the associated switch icon will be turned off. This means it could take up to 30 seconds for the icon to idicate the vacuum is done. Wyze servers start ignoring requests if you poll them too often.  
+The statusCheckRefreshInterval indicates how often to check that the vacuum is still sweeping after being started. When the vacuum stops sweeping the associated switch icon will be turned off. This means it could take up to 30 seconds (default) for the icon to indicate the vacuum is done. Wyze servers start ignoring requests if you poll them too often. After starting the plugin, it will take batteryCheckRefreshInterval (2 min default) to see the battery charge level the first time. After that the value is refreshed after each interval.  
 
 From the time a room switch is 'pressed', it takes 10-15 seconds for the vacuum to activate.
 

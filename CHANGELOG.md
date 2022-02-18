@@ -2,6 +2,9 @@
 
 All changes to the software will be documented here.
 
+## V1.1.1 
+- Updated README.md regarding the display of the battery charge level.
+
 ## V1.1.0 
 - Added a faux Humidity sensor to display the vacuum's current battery charge level.
 
