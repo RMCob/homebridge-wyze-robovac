@@ -1,5 +1,5 @@
 # homebridge-wyze-robovac
-[![npm](https://img.shields.io/npm/v/homebridge-wyze-robovac)
+[![npm](https://img.shields.io/npm/v/homebridge-wyze-robovac)](https://www.npmjs.com/package/homebridge-wyze-robovac/v/latest)
 [![npm](https://img.shields.io/npm/dt/homebridge-wyze-robovac)](https://www.npmjs.com/package/homebridge-wyze-robovac)
 [![GitHub last commit](https://img.shields.io/github/last-commit/RMCob/homebridge-wyze-robovac)](https://github.com/RMCob/homebridge-wyze-robovac)
 [![verified-by-homebridge](https://badgen.net/badge/homebridge/verified/purple)](https://github.com/homebridge/homebridge/wiki/Verified-Plugins)
@@ -67,7 +67,8 @@ Supported devices will be discovered and added to Homebridge automatically.
 ### Optional fields
 
 * **`mfaCode`** &ndash; Only required for the initial login if you have two-factor authentication enabled for your account. This is typically a 6-digit code provided by your authenticator app.
-* **`refreshInterval`** &ndash; Defines how often the status of the devices will be polled in milliseconds (e.g., `"refreshInterval": 5000` will check the status of your devices' status every 5 seconds). Defaults to 30 seconds.
+* **`statusCheckRefreshInterval`** &ndash; Defines how often the status of the vacuum will be polled in milliseconds after sweeping has started (e.g., `"statusCheckRefreshInterval": 60000` will check the status of your devices' status every 60 seconds). Defaults to 30000 ms (30 seconds).
+* **`batteryCheckRefreshInterval`** &ndash; Defines how often the battery level of the vacuum will be polled in milliseconds (e.g., `"batteryCheckRefreshInterval": 60000` will check the status of your devices' status every 60 seconds). Defaults to 120000 ms (2 minutes).
 
 ## Other Info
 

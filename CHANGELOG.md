@@ -2,11 +2,14 @@
 
 All changes to the software will be documented here.
 
+## V1.1.2 
+- Minor logging improvement when finished sweeping. Fixed typos in README.md
+
 ## V1.1.1 
-- Updated README.md regarding the display of the battery charge level.
+- Updated README.md regarding the display of the battery charge level
 
 ## V1.1.0 
-- Added a faux Humidity sensor to display the vacuum's current battery charge level.
+- Added a faux Humidity sensor to display the vacuum's current battery charge level
 
 ## V1.0.0 
 - first 'Homebridge Verified' version. Updated README.md

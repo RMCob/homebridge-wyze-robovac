@@ -2,7 +2,7 @@
   "private": false,
   "displayName": "Homebridge Wyze RoboVac",
   "name": "homebridge-wyze-robovac",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Basic control of a Wyze Robot Vacuum.",
   "license": "Apache-2.0",
   "repository": {
