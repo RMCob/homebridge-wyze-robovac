@@ -2,6 +2,9 @@
 
 All changes to the software will be documented here.
 
+## V1.1.3 
+- Fixed typos in README.md
+
 ## V1.1.2 
 - Minor logging improvement when finished sweeping. Fixed typos in README.md
 
