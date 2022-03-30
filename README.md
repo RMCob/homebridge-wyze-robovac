@@ -70,7 +70,7 @@ Supported devices will be discovered and added to Homebridge automatically.
 * **`mfaCode`** &ndash; Only required for the initial login if you have two-factor authentication enabled for your account. This is typically a 6-digit code provided by your authenticator app.
 * **`statusCheckRefreshInterval`** &ndash; Defines how often the status of the vacuum will be polled in seconds after sweeping has started (e.g., `"statusCheckRefreshInterval": 60` will check your devices' status every 60 seconds). Defaults to 30 seconds.
 * **`idleBatteryCheckRefreshInterval`** &ndash; Defines how often to check the battery level of the vacuum when it is idle and the battery level = 100. (e.g., `"idleBatteryCheckRefreshInterval": 2700` will check the battery level every 45 minutes. Defaults to 1800 seconds (30 minutes).
-* **`busyBatteryCheckRefreshInterval`** &ndash; Defines how often to check the battery level of the vacuum when it is busy or the battery level < 100. (e.g., `"idleBatteryCheckRefreshInterval": 2700` will check the battery level every 45 minutes. Defaults to 1800 seconds (30 minutes).
+* **`busyBatteryCheckRefreshInterval`** &ndash; Defines how often to check the battery level of the vacuum when it is busy or the battery level < 100. (e.g., `"busyBatteryCheckRefreshInterval": 60` will check the battery level every minute. Defaults to 120 seconds (2 minutes).
 
 ## Other Info
 
