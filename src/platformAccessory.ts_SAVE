@@ -1,8 +1,6 @@
 import { Service, PlatformAccessory, CharacteristicValue } from 'homebridge';
 import { WyzeRoboVac } from './platform';
 
-const sleep1 = t => new Promise(s => setTimeout(s, (t * 1000)));
-
 /* eslint-disable */
 const { exec } = require('child_process');
 /* eslint-enable */
@@ -61,11 +59,11 @@ export class VacuumRoom {
           (error, stdout, stderr) => {
             if (error) {
               this.robovac.log.info(`error: ${error.message}`);
-              return;
+              //return;
             }
             if (stderr) {
               this.robovac.log.info(`stderr: ${stderr}`);
-              return;
+              //return;
             }
 
             this.currentStatus = stdout.slice(0, -1);  // Strip off trailing newline ('\n')
@@ -153,11 +151,11 @@ export class VacuumRoom {
           (error, stdout, stderr) => {
             if (error) {
               this.robovac.log.info(`error: ${error.message}`);
-              return;
+              //return;
             }
             if (stderr) {
               this.robovac.log.info(`stderr: ${stderr}`);
-              return;
+              //return;
             }
 
             this.currentStatus = stdout.slice(0, -1);  // Strip off trailing newline ('\n')
@@ -178,7 +176,7 @@ export class VacuumRoom {
               }
             }
           });
-      }, (this.robovac.config.statusCheckRefreshInterval * 1000));
+      }, this.robovac.config.statusCheckRefreshInterval);
     } else {
       this.robovac.setCurrentRoomName( '', this.deviceNickname );
       this.robovac.log.info(`Stopping sweep of room '${roomName}'(${this.deviceNickname}). Returning to charge...`);
@@ -191,11 +189,11 @@ export class VacuumRoom {
       (error, stdout, stderr) => {
         if (error) {
           this.robovac.log.info(`error: ${error.message}`);
-          return;
+          //return;
         }
         if (stderr) {
           this.robovac.log.info(`stderr: ${stderr}`);
-          return;
+          //return;
         }
         this.myLogger(`stdout: ${stdout.slice(0, -1)}`); // Strip off trailing newline ('\n')
       });
@@ -239,24 +237,9 @@ export class VacuumRoom {
 //
 // Create Humidity Sensor accessory to represent cattery charge level
 //
-
-let myBatteryLevel;
-
-export async function stopSleep() {
-  myBatteryLevel.myLogger(`BatteryLevel(${myBatteryLevel.deviceNickname}): calling myBatteryLevel._stopSleep()`);
-  await myBatteryLevel._stopSleep();
-}
-
 export class BatteryLevel {
   private service: Service;
   private currentBatteryLevel = 0;
-  private lastValidBatteryLevel = 13;
-  private state = 0;
-  private getBatLvlFinished = false;
-  private refreshInterval = 5; // 5 seconds
-  private stopTimeout = false;
-  private timeoutID;
-  private timerFinished = false;
   private accLogName = '';
   private p2stubs = this.robovac.config.path2py_stubs;
   private username = this.robovac.config.username;
@@ -267,10 +250,8 @@ export class BatteryLevel {
     private readonly deviceNickname: string,
   ) {
 
-    myBatteryLevel = this;
-
     // set accessory information
-    this.accessory.displayName = `BatteryLevel(${this.deviceNickname})`;
+    this.accessory.displayName = `BatteryLxvel(${this.deviceNickname})`;
     this.accessory.getService(this.robovac.Service.AccessoryInformation)!
       .setCharacteristic(this.robovac.Characteristic.Manufacturer, 'Wyze')
       .setCharacteristic(this.robovac.Characteristic.Model, 'RoboVac')
@@ -285,108 +266,35 @@ export class BatteryLevel {
     this.service.getCharacteristic(this.robovac.Characteristic.CurrentRelativeHumidity)
       .onGet(this.handleCurrentRelativeHumidityGet.bind(this));
 
-    this.startHere();
-  }
-
-  setTimerFinished() {
-    myBatteryLevel.timerFinished = true;
-  }
-
-  async startHere() {
-
-    const doThis = true;
-    while( doThis ) {
-
-      this.myLogger(`BatteryLevel(${this.deviceNickname}): before sleep(), refreshInterval = '${this.refreshInterval}'`);
-
-      this.stopTimeout = false;
-      this.timerFinished = false;
-      this.timeoutID = setTimeout( this.setTimerFinished, (this.refreshInterval * 1000));
-      this.myLogger(`BatteryLevel(${this.deviceNickname}): waiting for setTimeout to finish`);
-      const doThis2 = true;
-      while( doThis2 ) {     // Wait for setTimeout to finish
-        if( this.timerFinished ) {
-          this.myLogger(`BatteryLevel(${this.deviceNickname}): this.timerFinished = ${this.timerFinished}`);
-          break;
-        }
-        if( this.stopTimeout ) {
-          this.myLogger(`BatteryLevel(${this.deviceNickname}): this.stopTimeout = ${this.stopTimeout}`);
-          clearTimeout( this.timeoutID );
-          break;
-        }
-        await sleep1( 1 );
-      }
-
-      this.getBatLvlFinished = false;
-      await this.getBatLvl();
-      let cntr = 0;
-      while( ! this.getBatLvlFinished ) {
-        if( cntr++ > 10 ) {  // Wait up to 10 seconds for getBatLvl() to finish
-          break;
-        }
-        await sleep1( 1 );
-      }
-
-      this.myLogger(`BatteryLevel(${this.deviceNickname}): this.currentBatteryLevel = '${this.currentBatteryLevel}'`);
-      this.service.getCharacteristic(this.robovac.Characteristic.CurrentRelativeHumidity).updateValue(this.currentBatteryLevel);
-
-      const idleBatteryCheck = this.robovac.config.idleBatteryCheckRefreshInterval;
-      const busyBatteryCheck = this.robovac.config.busyBatteryCheckRefreshInterval;
-
-      const nickName = this.deviceNickname;
-      if( `${this.currentBatteryLevel}` === '100' ) {
-        if( this.robovac.getCurrentRoomName( this.deviceNickname ) !== '' ) {  // Currently sweeping
-          if( this.refreshInterval !== this.robovac.config.busyBatteryCheckRefreshInterval ) {
-            this.myLogger(`BatteryLevel(${nickName}): changing refreshInterval from ${this.refreshInterval} to ${busyBatteryCheck}`);
+    setInterval(() => {
+      let lastValidBatteryLevel = 0;
+      exec(`python3 ${this.p2stubs}/getVacuumBatLevel.py ${this.username} ${this.robovac.config.password} ${this.deviceNickname}`,
+        (error, stdout, stderr) => {
+          if (error) {
+            this.robovac.log.info(`error: ${error.message}`);
+            //return;
           }
-          this.refreshInterval = this.robovac.config.busyBatteryCheckRefreshInterval;
-        } else {							       // Not currently sweeping
-          if( this.refreshInterval !== this.robovac.config.idleBatteryCheckRefreshInterval ) {
-            this.myLogger(`BatteryLevel(${nickName}): changing refreshInterval from ${this.refreshInterval} to ${idleBatteryCheck}`);
+          if (stderr) {
+            this.robovac.log.info(`stderr: ${stderr}`);
+            //return;
           }
-          this.refreshInterval = this.robovac.config.idleBatteryCheckRefreshInterval;
-        }
-      } else {                                                                 // battery level < 100
-        if( this.refreshInterval !== this.robovac.config.busyBatteryCheckRefreshInterval ) {
-          this.myLogger(`BatteryLevel(${nickName}): changing refreshInterval from ${this.refreshInterval} to ${busyBatteryCheck}`);
-        }
-        this.refreshInterval = this.robovac.config.busyBatteryCheckRefreshInterval;
-      }
-    }
-  }
 
-  public async _stopSleep() {
-    this.myLogger(`BatteryLevel(${this.deviceNickname}): stopping current sleep`);
-    this.stopTimeout = true;
-    this.myLogger(`BatteryLevel(${this.deviceNickname}): sleep cleared`);
-  }
+          this.currentBatteryLevel = stdout.slice(0, -1);  // Strip off trailing newline ('\n')
+          if( isNaN(this.currentBatteryLevel) ) {
+            this.myLogger(`getVacuumBatLevel.py returned NaN, setting this.currentBatteryLevel to '${lastValidBatteryLevel}'`);
+            this.currentBatteryLevel = lastValidBatteryLevel;
+          } else {
+            lastValidBatteryLevel = this.currentBatteryLevel;
+          }
 
-  async getBatLvl() {
-    await exec(`python3 ${this.p2stubs}/getVacuumBatLevel.py ${this.username} ${this.robovac.config.password} ${this.deviceNickname}`,
-      (error, stdout, stderr) => {
-        if (error) {
-          this.robovac.log.info(`error: ${error.message}`);
-          return;
-        }
-        if (stderr) {
-          this.robovac.log.info(`stderr: ${stderr}`);
-          return;
-        }
-
-        this.currentBatteryLevel = stdout.slice(0, -1);  // Strip off trailing newline ('\n')
-        if( isNaN(this.currentBatteryLevel) ) {
-          this.robovac.log.info(`getVacuumBatLevel.py returned NaN, setting currentBatteryLevel to '${this.lastValidBatteryLevel}'`);
-          this.currentBatteryLevel = this.lastValidBatteryLevel;
-        } else {
-          this.lastValidBatteryLevel = this.currentBatteryLevel;
-        }
-
-        this.getBatLvlFinished = true;
-      });
+          this.myLogger(`BatteryLevel setInterval(), this.currentBatteryLevel = '${this.currentBatteryLevel}'`);
+          this.service.getCharacteristic(this.robovac.Characteristic.CurrentRelativeHumidity).updateValue(this.currentBatteryLevel);
+        });
+    }, this.robovac.config.batteryCheckRefreshInterval);
   }
 
   handleCurrentRelativeHumidityGet() {
-    this.myLogger(`BatteryLevel(${this.deviceNickname}): Triggered GET CurrentRelativeHumidity`);
+    this.myLogger('Triggered GET CurrentRelativeHumidity');
     return this.currentBatteryLevel;
   }
 

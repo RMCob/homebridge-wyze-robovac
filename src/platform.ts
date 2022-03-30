@@ -1,13 +1,14 @@
 import { API, DynamicPlatformPlugin, Logger, PlatformAccessory, PlatformConfig, Service, Characteristic } from 'homebridge';
 
 import { PLATFORM_NAME, PLUGIN_NAME } from './settings';
-import { VacuumRoom, BatteryLevel } from './platformAccessory';
+import { VacuumRoom, BatteryLevel, stopSleep } from './platformAccessory';
 
 /* eslint-disable */
 /* lint doesn't like this line. Not sure why */
 const { exec } = require('child_process');
 /* eslint-enable */
 
+const batteryAccessory :PlatformAccessory[] = [];
 const currentRoomName : string[] = [];
 const nickNames : string[] = [];
 
@@ -51,7 +52,9 @@ export class WyzeRoboVac implements DynamicPlatformPlugin {
   }
 
   setCurrentRoomName( roomName, nickName ) {
-    currentRoomName[ nickNames.indexOf(nickName) ] = roomName;
+    currentRoomName[ nickNames.indexOf(nickName) ] = roomName; // != "" ==> sweeping. Otherwise not sweeping
+    this.myLogger('BatteryLevel: stopping current sleep');
+    stopSleep(); // Restart battery level survailance.
   }
 
   discoverDevices() {
@@ -63,11 +66,11 @@ export class WyzeRoboVac implements DynamicPlatformPlugin {
       (error, stdout, stderr) => {
         if (error) {
           this.log.info(`error: ${error.message}`);
-          //return;
+          return;
         }
         if (stderr) {
           this.log.info(`stderr: ${stderr}`);
-          //return;
+          return;
         }
         let line = '';
 
@@ -99,11 +102,11 @@ export class WyzeRoboVac implements DynamicPlatformPlugin {
       (error, stdout, stderr) => {
         if (error) {
           this.log.info(`error: ${error.message}`);
-          //return;
+          return;
         }
         if (stderr) {
           this.log.info(`stderr: ${stderr}`);
-          //return;
+          return;
         }
         let line = '';
 
@@ -168,6 +171,7 @@ export class WyzeRoboVac implements DynamicPlatformPlugin {
         const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
 
         if (existingAccessory) {
+          batteryAccessory.push(existingAccessory);
           // the accessory already exists
           this.log.info(`Restoring existing accessory from cache: '${existingAccessory.displayName}' for vacuum '${nickName}'`);
 
@@ -181,6 +185,7 @@ export class WyzeRoboVac implements DynamicPlatformPlugin {
 
           // create a new accessory
           const accessory = new this.api.platformAccessory(`BatteryLevel(${nickName})`, uuid);
+          batteryAccessory.push(accessory);
 
           // create the accessory handler for the newly create accessory
           // this is imported from `platformAccessory.ts`

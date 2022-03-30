@@ -2,6 +2,10 @@
 
 All changes to the software will be documented here.
 
+## V1.2.0 
+- Changed the BatteryCheck algorithm to not pound the Wyze servers so much. There are now 2 referesh intervals specified, one for when the vacuum is busy or has less than 100% charge, and one for when the vacuum is idle with 100% charge.
+- Changed the refresh interval specifications on the Settings page (and in config.json) from milliseconds to seconds. If you are updating this plugin be sure to go to the Settings page and change the value for statusCheckRefreshInterval to be in seconds. 
+
 ## V1.1.3 
 - Fixed typos in README.md
 
