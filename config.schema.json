@@ -62,7 +62,7 @@
         "title": "Path to Python helper scripts",
         "description": "The location where the Python helper scripts are installed",
         "type": "string",
-        "default": "/usr/lib/node_modules/homebridge-wyze-robovac/py_helpers",
+        "default": "/homebridge/node_modules/homebridge-wyze-robovac/py_helpers",
         "required": true
       },
       "debugLevel": {
