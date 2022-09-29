@@ -56,7 +56,7 @@ Use the settings UI in Homebridge Config UI X to configure your Wyze account, or
       "statusCheckRefreshInterval": "Refresh Interval for status checks after sweeping starts. Default 30 sec",
       "idleBatteryCheckRefreshInterval": "Refresh Interval for battery checks when idle. Default 1800 seconds (30 min)",
       "busyBatteryCheckRefreshInterval": "Refresh Interval for battery checks when busy or charge level < 100. Default 120 seconds (2 min)",
-      "path2py_stubs": "Path to Python helper scripts. Default '/usr/lib/node_modules/homebridge-wyze-robovac/py_helpers'",
+      "path2py_stubs": "Path to Python helper scripts. Default '/homebridge/node_modules/homebridge-wyze-robovac/py_helpers'",
       "debugLevel": "Can be 0 (no logging), 1 (log.info), or 2 (log.debug)"
     }
   ]
