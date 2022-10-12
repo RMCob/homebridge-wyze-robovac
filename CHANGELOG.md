@@ -2,6 +2,9 @@
 
 All changes to the software will be documented here.
 
+## V1.3.1
+- Fixed dependency error
+
 ## V1.3.0
 - Added logic to deal with multiple floor maps, a capability that is available in certain versions of the firmware. If your vacuum does not have the multi-floor mapping firmware it will default to have one floor named 'Main Floor'.
 - If you have maps for multiple floors, the plugin will now identify the rooms on all floors and create accessory switches for each. Prior versions of the plugin only identified the rooms in the 'current' map as specified in the Wyze app.
