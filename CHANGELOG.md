@@ -2,6 +2,15 @@
 
 All changes to the software will be documented here.
 
+## V1.3.0
+- Added logic to deal with multiple floor maps, a capability that is available in certain versions of the firmware. If your vacuum does not have the multi-floor mapping firmware it will default to have one floor named 'Main Floor'.
+- If you have maps for multiple floors, the plugin will now identify the rooms on all floors and create accessory switches for each. Prior versions of the plugin only identified the rooms in the 'current' map as specified in the Wyze app.
+- Names for switch accessories now have the floor name appended to them when they are created. A side effect of this is that room and floor names cannot contain the ':' (colon) character when they are specified in the Wyze app. The names can be modified later in HomeKit as needed.
+- If you start sweeping a room that is on a different floor than the 'current' floor shown in the Wyze app, the plugin will cause the map shown in the app to change to the floor the room being swept is on.
+- Updating from a previous version of the plugin will most likely cause the existing vacuum accessory switches to be orphaned and non-responsive. If this happens you will need to use the Homebridge UI (Homebridge Settings) to remove the cache entries for those
+ accessories.
+- If you do not have the multi-floor firmware there is no need to upgrade to this version. 
+
 ## V1.2.1 
 - Fixed typos in README.md
 
@@ -34,7 +43,7 @@ All changes to the software will be documented here.
 - Check that all required config settings have been supplied before starting plugin.
 
 ## V0.0.5 
-- First 'official' release' 
+- First 'official' release 
 
 ## V0.0.5-0 
 - No changes. Working out the kinks of the publish/delivery process

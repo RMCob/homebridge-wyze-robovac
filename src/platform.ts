@@ -11,6 +11,7 @@ const { exec } = require('child_process');
 const batteryAccessory :PlatformAccessory[] = [];
 const currentRoomName : string[] = [];
 const nickNames : string[] = [];
+const floorName = '';
 
 export class WyzeRoboVac implements DynamicPlatformPlugin {
   public readonly Service: typeof Service = this.api.hap.Service;
@@ -98,7 +99,7 @@ export class WyzeRoboVac implements DynamicPlatformPlugin {
     //
     // Get list of rooms from Wyze from the current map for this device
     //
-    exec(`python3 ${this.config.path2py_stubs}/getVacuumRoomList.py ${this.config.username} ${this.config.password} ${nickName}`,
+    exec(`python3 ${this.config.path2py_stubs}/getVacuumFloors.py ${this.config.username} ${this.config.password} '${nickName}'`,
       (error, stdout, stderr) => {
         if (error) {
           this.log.info(`error: ${error.message}`);
@@ -124,34 +125,39 @@ export class WyzeRoboVac implements DynamicPlatformPlugin {
 
         // loop over the discovered rooms and register each one if it has not already been registered
         for (const room of rooms) {
+          const tmpList = room.split(':');
+          const roomName = room;
+          const floorName = tmpList[1];
 
           // generate a unique id for the accessory this should be generated from
           // something globally unique, but constant, for example, the device serial
           // number or MAC address.
-          const uuid = this.api.hap.uuid.generate(nickName + room);
+          const uuid = this.api.hap.uuid.generate(nickName + roomName + floorName);
 
           // see if an accessory with the same uuid has already been registered and restored from
           // the cached devices we stored in the `configureAccessory` method above
           const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
 
+          const tmpStr = `for vacuum '${nickName}'`;
           if (existingAccessory) {
             // the accessory already exists
-            this.log.info(`Restoring existing accessory from cache: '${existingAccessory.displayName}' for vacuum '${nickName}'`);
+            this.log.info(`Restoring existing accessory from cache: '${existingAccessory.displayName}'` + tmpStr);
+
 
             // create the accessory handler for the restored accessory
             // this is imported from `platformAccessory.ts`
-            new VacuumRoom(this, existingAccessory, nickName);
+            new VacuumRoom(this, existingAccessory, nickName, floorName);
 
           } else {
             // the accessory does not yet exist, so we need to create it
-            this.log.info(`Adding new accessory '${room}' for vacuum '${nickName}'`);
+            this.log.info(`Adding new accessory '${roomName}'` + tmpStr);
 
             // create a new accessory
-            const accessory = new this.api.platformAccessory(room, uuid);
+            const accessory = new this.api.platformAccessory(roomName, uuid);
 
             // create the accessory handler for the newly create accessory
             // this is imported from `platformAccessory.ts`
-            new VacuumRoom(this, accessory, nickName);
+            new VacuumRoom(this, accessory, nickName, floorName);
 
             // link the accessory to your platform
             this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
@@ -164,7 +170,7 @@ export class WyzeRoboVac implements DynamicPlatformPlugin {
         // generate a unique id for the accessory this should be generated from
         // something globally unique, but constant, for example, the device serial
         // number or MAC address.
-        const uuid = this.api.hap.uuid.generate(nickName + 'BateryLevel');
+        const uuid = this.api.hap.uuid.generate(nickName + floorName + 'BateryLevel');
 
         // see if an accessory with the same uuid has already been registered and restored from
         // the cached devices we stored in the `configureAccessory` method above
@@ -177,7 +183,7 @@ export class WyzeRoboVac implements DynamicPlatformPlugin {
 
           // create the accessory handler for the restored accessory
           // this is imported from `platformAccessory.ts`
-          new BatteryLevel(this, existingAccessory, nickName);
+          new BatteryLevel(this, existingAccessory, nickName, floorName);
 
         } else {
           // the accessory does not yet exist, so we need to create it
@@ -189,7 +195,7 @@ export class WyzeRoboVac implements DynamicPlatformPlugin {
 
           // create the accessory handler for the newly create accessory
           // this is imported from `platformAccessory.ts`
-          new BatteryLevel(this, accessory, nickName);
+          new BatteryLevel(this, accessory, nickName, floorName);
 
           // link the accessory to your platform
           this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);

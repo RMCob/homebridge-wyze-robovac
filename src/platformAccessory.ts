@@ -24,6 +24,7 @@ export class VacuumRoom {
     private readonly robovac: WyzeRoboVac,
     private readonly accessory: PlatformAccessory,
     private readonly deviceNickname: string,
+    private readonly floorName: string,
   ) {
 
     // set accessory information
@@ -57,7 +58,7 @@ export class VacuumRoom {
     if( this.isOn ) {
       if( currentlySweeping === '' ) { // Check that the vacuum is really idle
 
-        exec(`python3 ${this.p2stubs}/getVacuumStatus.py ${this.username} ${this.robovac.config.password} ${this.deviceNickname}`,
+        exec(`python3 ${this.p2stubs}/getVacuumStatus.py ${this.username} ${this.robovac.config.password} '${this.deviceNickname}'`,
           (error, stdout, stderr) => {
             if (error) {
               this.robovac.log.info(`error: ${error.message}`);
@@ -99,7 +100,7 @@ export class VacuumRoom {
               return;
             }
             this.myLogger(`Room ${this.accLogName} turning 'On'`);
-            this.runVacuum( this.isOn, this.accessory.displayName );
+            this.runVacuum( this.isOn, this.accessory.displayName, this.floorName );
           });
       } else {
         if( currentlySweeping === this.accessory.displayName ) { // This case should not be possible, but just in case :-)
@@ -120,7 +121,7 @@ export class VacuumRoom {
     } else {  // this.isOn == false
       if( currentlySweeping === this.accessory.displayName ) {
         this.myLogger(`Room ${this.accLogName} turning 'Off'`);
-        this.runVacuum( this.isOn, this.accessory.displayName );
+        this.runVacuum( this.isOn, this.accessory.displayName, this.floorName );
         return;
       } else {
         // Currently sweeping some other room. Abort this request
@@ -135,13 +136,20 @@ export class VacuumRoom {
     }
   }
 
-  runVacuum( isOn, room ) {
-    let roomName = room;
+  async runVacuum( isOn, room, floor ) {
+    const roomName = room;
+    const floorName = floor;
     let py_prog = '';
     let intervalID;
     let isSweeping = false;
+    const tmpList = roomName.split(':');
+    let room2sweep = tmpList[0];
 
     if(isOn) {
+      // Make the map this room is in the 'current' map
+      this.setCurrentFloorMap( floorName );
+
+      await sleep1( 5 );
       this.robovac.setCurrentRoomName( roomName, this.deviceNickname );
       this.robovac.log.info(`Starting to sweep room '${roomName}'(${this.deviceNickname})`);
       py_prog = 'vacuumStartSweep';
@@ -149,7 +157,7 @@ export class VacuumRoom {
       // Start loop to check vacuum status
       //
       intervalID = setInterval(() => {
-        exec(`python3 ${this.p2stubs}/getVacuumStatus.py ${this.username} ${this.robovac.config.password} ${this.deviceNickname}`,
+        exec(`python3 ${this.p2stubs}/getVacuumStatus.py ${this.username} ${this.robovac.config.password} '${this.deviceNickname}'`,
           (error, stdout, stderr) => {
             if (error) {
               this.robovac.log.info(`error: ${error.message}`);
@@ -183,11 +191,11 @@ export class VacuumRoom {
       this.robovac.setCurrentRoomName( '', this.deviceNickname );
       this.robovac.log.info(`Stopping sweep of room '${roomName}'(${this.deviceNickname}). Returning to charge...`);
       py_prog = 'vacuumStopSweep';
-      roomName = '';
+      room2sweep = '';
       clearInterval( intervalID );
     }
 
-    exec(`python3 ${this.p2stubs}/${py_prog}.py ${this.username} ${this.robovac.config.password} ${this.deviceNickname} '${roomName}'`,
+    exec(`python3 ${this.p2stubs}/${py_prog}.py ${this.username} ${this.robovac.config.password} '${this.deviceNickname}' '${room2sweep}'`,
       (error, stdout, stderr) => {
         if (error) {
           this.robovac.log.info(`error: ${error.message}`);
@@ -199,6 +207,25 @@ export class VacuumRoom {
         }
         this.myLogger(`stdout: ${stdout.slice(0, -1)}`); // Strip off trailing newline ('\n')
       });
+  }
+
+  setCurrentFloorMap( floorName ) {
+    const floor = floorName;
+    const tmpStr = `${this.robovac.config.username} ${this.robovac.config.password} '${this.deviceNickname}' '${floor}'`;
+    exec(`python3 ${this.robovac.config.path2py_stubs}/setVacuumFloor.py ` + tmpStr,
+      (error, stdout, stderr) => {
+        if (error) {
+          this.robovac.log.info(`error: ${error.message}`);
+        }
+        if (stderr) {
+          this.robovac.log.info(`stderr: ${stderr}`);
+        }
+        if (error || stderr) {
+          return;
+        }
+        this.myLogger(`Current map set to floor '${floor}'`);
+      },
+    );
   }
 
   /**
@@ -265,6 +292,7 @@ export class BatteryLevel {
     private readonly robovac: WyzeRoboVac,
     private readonly accessory: PlatformAccessory,
     private readonly deviceNickname: string,
+    private readonly floorName: string,
   ) {
 
     myBatteryLevel = this;
@@ -362,7 +390,7 @@ export class BatteryLevel {
   }
 
   async getBatLvl() {
-    await exec(`python3 ${this.p2stubs}/getVacuumBatLevel.py ${this.username} ${this.robovac.config.password} ${this.deviceNickname}`,
+    await exec(`python3 ${this.p2stubs}/getVacuumBatLevel.py ${this.username} ${this.robovac.config.password} '${this.deviceNickname}'`,
       (error, stdout, stderr) => {
         if (error) {
           this.robovac.log.info(`error: ${error.message}`);
