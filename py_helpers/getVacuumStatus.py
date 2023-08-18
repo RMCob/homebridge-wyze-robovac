@@ -5,15 +5,15 @@ import wyze_sdk
 from wyze_sdk import Client
 from wyze_sdk.errors import WyzeApiError
 
-if len(sys.argv) != 4 :
+if len(sys.argv) != 6 :
   sys.stdout = sys.stderr
-  print(f"USAGE: {sys.argv[0]} wyze_email wyze_password robrobovac_nickname")
+  print(f"USAGE: {sys.argv[0]} wyze_email wyze_password wyze_keyid wyze_apikey robrobovac_nickname")
   quit(1)
 
 device_mac = "Not_Set"
 
-client = Client(email=os.sys.argv[1], password=os.sys.argv[2])
-roboVacNickname = os.sys.argv[3] 
+client = Client(email=os.sys.argv[1], password=os.sys.argv[2], keyid=os.sys.argv[3], apikey=os.sys.argv[4])
+roboVacNickname = os.sys.argv[5] 
 
 for device in client.devices_list():
 

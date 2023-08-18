@@ -26,7 +26,8 @@ export class WyzeRoboVac implements DynamicPlatformPlugin {
     public readonly api: API,
   ) {
     // Validate configuration
-    if ( this.config.name === undefined || this.config.username === undefined || this.config.password === undefined ) {
+    if ( this.config.name === undefined || this.config.username === undefined ||
+      this.config.password === undefined || this.config.keyid === undefined || this.config.apikey === undefined ) {
       log.error('INVALID CONFIGURATION FOR PLUGIN: homebridge-wyze-robovac');
       log.error('name, username and/or password not set. Plugin not started.');
       return;
@@ -62,36 +63,38 @@ export class WyzeRoboVac implements DynamicPlatformPlugin {
     //
     // Make list of nicknames for each vacuum.
     //
-    this.myLogger(`discoverDevices(): username = '${this.config.username}', password = '${this.config.password}'`);
-    exec(`python3 ${this.config.path2py_stubs}/getVacuumDeviceList.py ${this.config.username} ${this.config.password}`,
-      (error, stdout, stderr) => {
-        if (error) {
-          this.log.info(`error: ${error.message}`);
-          return;
-        }
-        if (stderr) {
-          this.log.info(`stderr: ${stderr}`);
-          return;
-        }
-        let line = '';
+    this.myLogger(`discoverDevices(): username = '${this.config.username}', password = '
+    ${this.config.password}', keyid = '${this.config.keyid}', apikey = '${this.config.apikey}'`);
+    exec(`python3 ${this.config.path2py_stubs}/getVacuumDeviceList.py ${this.config.username} ${this.config.password} 
+    ${this.config.keyid} ${this.config.apikey}`,
+    (error, stdout, stderr) => {
+      if (error) {
+        this.log.info(`error: ${error.message}`);
+        return;
+      }
+      if (stderr) {
+        this.log.info(`stderr: ${stderr}`);
+        return;
+      }
+      let line = '';
 
-        // Get individual lines of output from stdout
-        for(let i = 0; i < stdout.length; i++) {
-          const c = stdout.charAt(i);
-          if( c === '\n') {
-            nickNames.push( line );
-            currentRoomName.push( '' );   // Current room name for this vacuum
-            line = '';
-            continue;
-          }
-          line = line.concat( stdout.charAt(i) );
+      // Get individual lines of output from stdout
+      for(let i = 0; i < stdout.length; i++) {
+        const c = stdout.charAt(i);
+        if( c === '\n') {
+          nickNames.push( line );
+          currentRoomName.push( '' );   // Current room name for this vacuum
+          line = '';
+          continue;
         }
+        line = line.concat( stdout.charAt(i) );
+      }
 
-        // loop over the discovered devices and find the rooms for each vacuum
-        for (const nickName of nickNames) {
-          this.discoverRooms( nickName );
-        }
-      });
+      // loop over the discovered devices and find the rooms for each vacuum
+      for (const nickName of nickNames) {
+        this.discoverRooms( nickName );
+      }
+    });
   }
 
   discoverRooms(nickName) {
@@ -99,108 +102,109 @@ export class WyzeRoboVac implements DynamicPlatformPlugin {
     //
     // Get list of rooms from Wyze from the current map for this device
     //
-    exec(`python3 ${this.config.path2py_stubs}/getVacuumFloors.py ${this.config.username} ${this.config.password} '${nickName}'`,
-      (error, stdout, stderr) => {
-        if (error) {
-          this.log.info(`error: ${error.message}`);
-          return;
+    exec(`python3 ${this.config.path2py_stubs}/getVacuumFloors.py ${this.config.username} ${this.config.password} 
+    ${this.config.keyid} ${this.config.apikey} '${nickName}'`,
+    (error, stdout, stderr) => {
+      if (error) {
+        this.log.info(`error: ${error.message}`);
+        return;
+      }
+      if (stderr) {
+        this.log.info(`stderr: ${stderr}`);
+        return;
+      }
+      let line = '';
+
+      // Get individual lines of output from stdout
+      for(let i = 0; i < stdout.length; i++) {
+        const c = stdout.charAt(i);
+        if( c === '\n') {
+          rooms.push( line );
+          line = '';
+          continue;
         }
-        if (stderr) {
-          this.log.info(`stderr: ${stderr}`);
-          return;
-        }
-        let line = '';
+        line = line.concat( stdout.charAt(i) );
+      }
+      this.myLogger(`in discoverRooms(): rooms.length: ${rooms.length}`);
 
-        // Get individual lines of output from stdout
-        for(let i = 0; i < stdout.length; i++) {
-          const c = stdout.charAt(i);
-          if( c === '\n') {
-            rooms.push( line );
-            line = '';
-            continue;
-          }
-          line = line.concat( stdout.charAt(i) );
-        }
-        this.myLogger(`in discoverRooms(): rooms.length: ${rooms.length}`);
+      // loop over the discovered rooms and register each one if it has not already been registered
+      for (const room of rooms) {
+        const tmpList = room.split(':');
+        const roomName = room;
+        const floorName = tmpList[1];
 
-        // loop over the discovered rooms and register each one if it has not already been registered
-        for (const room of rooms) {
-          const tmpList = room.split(':');
-          const roomName = room;
-          const floorName = tmpList[1];
-
-          // generate a unique id for the accessory this should be generated from
-          // something globally unique, but constant, for example, the device serial
-          // number or MAC address.
-          const uuid = this.api.hap.uuid.generate(nickName + roomName + floorName);
-
-          // see if an accessory with the same uuid has already been registered and restored from
-          // the cached devices we stored in the `configureAccessory` method above
-          const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
-
-          const tmpStr = `for vacuum '${nickName}'`;
-          if (existingAccessory) {
-            // the accessory already exists
-            this.log.info(`Restoring existing accessory from cache: '${existingAccessory.displayName}'` + tmpStr);
-
-
-            // create the accessory handler for the restored accessory
-            // this is imported from `platformAccessory.ts`
-            new VacuumRoom(this, existingAccessory, nickName, floorName);
-
-          } else {
-            // the accessory does not yet exist, so we need to create it
-            this.log.info(`Adding new accessory '${roomName}'` + tmpStr);
-
-            // create a new accessory
-            const accessory = new this.api.platformAccessory(roomName, uuid);
-
-            // create the accessory handler for the newly create accessory
-            // this is imported from `platformAccessory.ts`
-            new VacuumRoom(this, accessory, nickName, floorName);
-
-            // link the accessory to your platform
-            this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
-          }
-        }
-
-        //
-        // Create a Humidity Sensor accessory to represent the device's current charge level (0-100)
-        //
         // generate a unique id for the accessory this should be generated from
         // something globally unique, but constant, for example, the device serial
         // number or MAC address.
-        const uuid = this.api.hap.uuid.generate(nickName + floorName + 'BateryLevel');
+        const uuid = this.api.hap.uuid.generate(nickName + roomName + floorName);
 
         // see if an accessory with the same uuid has already been registered and restored from
         // the cached devices we stored in the `configureAccessory` method above
         const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
 
+        const tmpStr = `for vacuum '${nickName}'`;
         if (existingAccessory) {
-          batteryAccessory.push(existingAccessory);
           // the accessory already exists
-          this.log.info(`Restoring existing accessory from cache: '${existingAccessory.displayName}' for vacuum '${nickName}'`);
+          this.log.info(`Restoring existing accessory from cache: '${existingAccessory.displayName}'` + tmpStr);
+
 
           // create the accessory handler for the restored accessory
           // this is imported from `platformAccessory.ts`
-          new BatteryLevel(this, existingAccessory, nickName, floorName);
+          new VacuumRoom(this, existingAccessory, nickName, floorName);
 
         } else {
           // the accessory does not yet exist, so we need to create it
-          this.log.info(`Adding new accessory 'BatteryLevel' for vacuum '${nickName}'`);
+          this.log.info(`Adding new accessory '${roomName}'` + tmpStr);
 
           // create a new accessory
-          const accessory = new this.api.platformAccessory(`BatteryLevel(${nickName})`, uuid);
-          batteryAccessory.push(accessory);
+          const accessory = new this.api.platformAccessory(roomName, uuid);
 
           // create the accessory handler for the newly create accessory
           // this is imported from `platformAccessory.ts`
-          new BatteryLevel(this, accessory, nickName, floorName);
+          new VacuumRoom(this, accessory, nickName, floorName);
 
           // link the accessory to your platform
           this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
         }
-      });
+      }
+
+      //
+      // Create a Humidity Sensor accessory to represent the device's current charge level (0-100)
+      //
+      // generate a unique id for the accessory this should be generated from
+      // something globally unique, but constant, for example, the device serial
+      // number or MAC address.
+      const uuid = this.api.hap.uuid.generate(nickName + floorName + 'BateryLevel');
+
+      // see if an accessory with the same uuid has already been registered and restored from
+      // the cached devices we stored in the `configureAccessory` method above
+      const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
+
+      if (existingAccessory) {
+        batteryAccessory.push(existingAccessory);
+        // the accessory already exists
+        this.log.info(`Restoring existing accessory from cache: '${existingAccessory.displayName}' for vacuum '${nickName}'`);
+
+        // create the accessory handler for the restored accessory
+        // this is imported from `platformAccessory.ts`
+        new BatteryLevel(this, existingAccessory, nickName, floorName);
+
+      } else {
+        // the accessory does not yet exist, so we need to create it
+        this.log.info(`Adding new accessory 'BatteryLevel' for vacuum '${nickName}'`);
+
+        // create a new accessory
+        const accessory = new this.api.platformAccessory(`BatteryLevel(${nickName})`, uuid);
+        batteryAccessory.push(accessory);
+
+        // create the accessory handler for the newly create accessory
+        // this is imported from `platformAccessory.ts`
+        new BatteryLevel(this, accessory, nickName, floorName);
+
+        // link the accessory to your platform
+        this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
+      }
+    });
   }
 
   myLogger( line ) {

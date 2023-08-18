@@ -18,7 +18,6 @@ export class VacuumRoom {
   private currentStatus = '';
   private accLogName = '';
   private p2stubs = this.robovac.config.path2py_stubs;
-  private username = this.robovac.config.username;
 
   constructor(
     private readonly robovac: WyzeRoboVac,
@@ -58,50 +57,51 @@ export class VacuumRoom {
     if( this.isOn ) {
       if( currentlySweeping === '' ) { // Check that the vacuum is really idle
 
-        exec(`python3 ${this.p2stubs}/getVacuumStatus.py ${this.username} ${this.robovac.config.password} '${this.deviceNickname}'`,
-          (error, stdout, stderr) => {
-            if (error) {
-              this.robovac.log.info(`error: ${error.message}`);
-              return;
-            }
-            if (stderr) {
-              this.robovac.log.info(`stderr: ${stderr}`);
-              return;
-            }
+        exec(`python3 ${this.p2stubs}/getVacuumStatus.py ${this.robovac.config.username} ${this.robovac.config.password} 
+        ${this.robovac.config.keyid} ${this.robovac.config.apikey} '${this.deviceNickname}'`,
+        (error, stdout, stderr) => {
+          if (error) {
+            this.robovac.log.info(`error: ${error.message}`);
+            return;
+          }
+          if (stderr) {
+            this.robovac.log.info(`stderr: ${stderr}`);
+            return;
+          }
 
-            this.currentStatus = stdout.slice(0, -1);  // Strip off trailing newline ('\n')
+          this.currentStatus = stdout.slice(0, -1);  // Strip off trailing newline ('\n')
 
-            this.myLogger(`Room ${this.accLogName}): vacuumStatus = '${this.currentStatus}'`);
+          this.myLogger(`Room ${this.accLogName}): vacuumStatus = '${this.currentStatus}'`);
 
-            if( this.currentStatus === 'VacuumMode.SWEEPING' ) {
-              //
-              // Abort this request
-              //
-              // Just turn the switch icon off.  Throwing an error here causes the entire plugin to go belly up. Not sure why.
-              //
-              this.myLogger(`Aborting request for room ${this.accLogName}. vacuumStatus = '${this.currentStatus}'`);
-              this.service.getCharacteristic(this.robovac.Characteristic.On).updateValue(false);
-              //throw new this.robovac.api.hap.HapStatusError(this.robovac.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
-              return;
-            }
-
+          if( this.currentStatus === 'VacuumMode.SWEEPING' ) {
             //
-            // Check if the vacuum is already sweeping a different room
+            // Abort this request
             //
-            this.myLogger(`currentlySweeping = '${currentlySweeping}', accessory.displayName = '${this.accessory.displayName}'`);
-            if( currentlySweeping !== '' && currentlySweeping !== this.accessory.displayName ) {
-              // Abort this request
-              this.myLogger(`Aborting request for room ${this.accLogName}. Already sweeping '${currentlySweeping}'`);
-              this.service.getCharacteristic(this.robovac.Characteristic.On).updateValue(false);
-              //
-              // Throwing the error forces the switch icon off with a "!" displayed to indicate an error
-              //
-              throw new this.robovac.api.hap.HapStatusError(this.robovac.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
-              return;
-            }
-            this.myLogger(`Room ${this.accLogName} turning 'On'`);
-            this.runVacuum( this.isOn, this.accessory.displayName, this.floorName );
-          });
+            // Just turn the switch icon off.  Throwing an error here causes the entire plugin to go belly up. Not sure why.
+            //
+            this.myLogger(`Aborting request for room ${this.accLogName}. vacuumStatus = '${this.currentStatus}'`);
+            this.service.getCharacteristic(this.robovac.Characteristic.On).updateValue(false);
+            //throw new this.robovac.api.hap.HapStatusError(this.robovac.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
+            return;
+          }
+
+          //
+          // Check if the vacuum is already sweeping a different room
+          //
+          this.myLogger(`currentlySweeping = '${currentlySweeping}', accessory.displayName = '${this.accessory.displayName}'`);
+          if( currentlySweeping !== '' && currentlySweeping !== this.accessory.displayName ) {
+            // Abort this request
+            this.myLogger(`Aborting request for room ${this.accLogName}. Already sweeping '${currentlySweeping}'`);
+            this.service.getCharacteristic(this.robovac.Characteristic.On).updateValue(false);
+            //
+            // Throwing the error forces the switch icon off with a "!" displayed to indicate an error
+            //
+            throw new this.robovac.api.hap.HapStatusError(this.robovac.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
+            return;
+          }
+          this.myLogger(`Room ${this.accLogName} turning 'On'`);
+          this.runVacuum( this.isOn, this.accessory.displayName, this.floorName );
+        });
       } else {
         if( currentlySweeping === this.accessory.displayName ) { // This case should not be possible, but just in case :-)
           this.myLogger(`Room ${this.accLogName}: got setOn(true) event when suposedly already on. Ignoring...`);
@@ -157,35 +157,36 @@ export class VacuumRoom {
       // Start loop to check vacuum status
       //
       intervalID = setInterval(() => {
-        exec(`python3 ${this.p2stubs}/getVacuumStatus.py ${this.username} ${this.robovac.config.password} '${this.deviceNickname}'`,
-          (error, stdout, stderr) => {
-            if (error) {
-              this.robovac.log.info(`error: ${error.message}`);
-              return;
-            }
-            if (stderr) {
-              this.robovac.log.info(`stderr: ${stderr}`);
-              return;
-            }
+        exec(`python3 ${this.p2stubs}/getVacuumStatus.py ${this.robovac.config.username} ${this.robovac.config.password} 
+        ${this.robovac.config.keyid} ${this.robovac.config.apikey} '${this.deviceNickname}'`,
+        (error, stdout, stderr) => {
+          if (error) {
+            this.robovac.log.info(`error: ${error.message}`);
+            return;
+          }
+          if (stderr) {
+            this.robovac.log.info(`stderr: ${stderr}`);
+            return;
+          }
 
-            this.currentStatus = stdout.slice(0, -1);  // Strip off trailing newline ('\n')
+          this.currentStatus = stdout.slice(0, -1);  // Strip off trailing newline ('\n')
 
-            this.myLogger(`in setInterval(), this.currentStatus = '${this.currentStatus}'`);
-            if( isSweeping ) {    // Waiting for vacuum to finish
-              if( this.currentStatus !== 'VacuumMode.SWEEPING' ) {
-                isSweeping = false;
-                clearInterval( intervalID );  // Stop checking.
-                this.myLogger('in setInterval(): Clearing currentRoomName, turning switch icon off');
-                this.robovac.setCurrentRoomName( '', this.deviceNickname );
-                this.service.getCharacteristic(this.robovac.Characteristic.On).updateValue(false); // Turn the switch icon off
-                this.robovac.log.info(`Finished sweeping room '${roomName}'(${this.deviceNickname})`);
-              }
-            } else {              // Waiting for vacuum to start
-              if( this.currentStatus === 'VacuumMode.SWEEPING' ) {
-                isSweeping = true;
-              }
+          this.myLogger(`in setInterval(), this.currentStatus = '${this.currentStatus}'`);
+          if( isSweeping ) {    // Waiting for vacuum to finish
+            if( this.currentStatus !== 'VacuumMode.SWEEPING' ) {
+              isSweeping = false;
+              clearInterval( intervalID );  // Stop checking.
+              this.myLogger('in setInterval(): Clearing currentRoomName, turning switch icon off');
+              this.robovac.setCurrentRoomName( '', this.deviceNickname );
+              this.service.getCharacteristic(this.robovac.Characteristic.On).updateValue(false); // Turn the switch icon off
+              this.robovac.log.info(`Finished sweeping room '${roomName}'(${this.deviceNickname})`);
             }
-          });
+          } else {              // Waiting for vacuum to start
+            if( this.currentStatus === 'VacuumMode.SWEEPING' ) {
+              isSweeping = true;
+            }
+          }
+        });
       }, (this.robovac.config.statusCheckRefreshInterval * 1000));
     } else {
       this.robovac.setCurrentRoomName( '', this.deviceNickname );
@@ -195,23 +196,25 @@ export class VacuumRoom {
       clearInterval( intervalID );
     }
 
-    exec(`python3 ${this.p2stubs}/${py_prog}.py ${this.username} ${this.robovac.config.password} '${this.deviceNickname}' '${room2sweep}'`,
-      (error, stdout, stderr) => {
-        if (error) {
-          this.robovac.log.info(`error: ${error.message}`);
-          return;
-        }
-        if (stderr) {
-          this.robovac.log.info(`stderr: ${stderr}`);
-          return;
-        }
-        this.myLogger(`stdout: ${stdout.slice(0, -1)}`); // Strip off trailing newline ('\n')
-      });
+    exec(`python3 ${this.p2stubs}/${py_prog}.py ${this.robovac.config.username} ${this.robovac.config.password} 
+    ${this.robovac.config.keyid} ${this.robovac.config.apikey} '${this.deviceNickname}' '${room2sweep}'`,
+    (error, stdout, stderr) => {
+      if (error) {
+        this.robovac.log.info(`error: ${error.message}`);
+        return;
+      }
+      if (stderr) {
+        this.robovac.log.info(`stderr: ${stderr}`);
+        return;
+      }
+      this.myLogger(`stdout: ${stdout.slice(0, -1)}`); // Strip off trailing newline ('\n')
+    });
   }
 
   setCurrentFloorMap( floorName ) {
     const floor = floorName;
-    const tmpStr = `${this.robovac.config.username} ${this.robovac.config.password} '${this.deviceNickname}' '${floor}'`;
+    const tmpStr = `${this.robovac.config.username} ${this.robovac.config.password} ${this.robovac.config.keyid} 
+    ${this.robovac.config.apikey} '${this.deviceNickname}' '${floor}'`;
     exec(`python3 ${this.robovac.config.path2py_stubs}/setVacuumFloor.py ` + tmpStr,
       (error, stdout, stderr) => {
         if (error) {
@@ -286,7 +289,6 @@ export class BatteryLevel {
   private timerFinished = false;
   private accLogName = '';
   private p2stubs = this.robovac.config.path2py_stubs;
-  private username = this.robovac.config.username;
 
   constructor(
     private readonly robovac: WyzeRoboVac,
@@ -390,27 +392,28 @@ export class BatteryLevel {
   }
 
   async getBatLvl() {
-    await exec(`python3 ${this.p2stubs}/getVacuumBatLevel.py ${this.username} ${this.robovac.config.password} '${this.deviceNickname}'`,
-      (error, stdout, stderr) => {
-        if (error) {
-          this.robovac.log.info(`error: ${error.message}`);
-          return;
-        }
-        if (stderr) {
-          this.robovac.log.info(`stderr: ${stderr}`);
-          return;
-        }
+    await exec(`python3 ${this.p2stubs}/getVacuumBatLevel.py ${this.robovac.config.username} ${this.robovac.config.password} 
+    ${this.robovac.config.keyid} ${this.robovac.config.apikey} '${this.deviceNickname}'`,
+    (error, stdout, stderr) => {
+      if (error) {
+        this.robovac.log.info(`error: ${error.message}`);
+        return;
+      }
+      if (stderr) {
+        this.robovac.log.info(`stderr: ${stderr}`);
+        return;
+      }
 
-        this.currentBatteryLevel = stdout.slice(0, -1);  // Strip off trailing newline ('\n')
-        if( isNaN(this.currentBatteryLevel) ) {
-          this.robovac.log.info(`getVacuumBatLevel.py returned NaN, setting currentBatteryLevel to '${this.lastValidBatteryLevel}'`);
-          this.currentBatteryLevel = this.lastValidBatteryLevel;
-        } else {
-          this.lastValidBatteryLevel = this.currentBatteryLevel;
-        }
+      this.currentBatteryLevel = stdout.slice(0, -1);  // Strip off trailing newline ('\n')
+      if( isNaN(this.currentBatteryLevel) ) {
+        this.robovac.log.info(`getVacuumBatLevel.py returned NaN, setting currentBatteryLevel to '${this.lastValidBatteryLevel}'`);
+        this.currentBatteryLevel = this.lastValidBatteryLevel;
+      } else {
+        this.lastValidBatteryLevel = this.currentBatteryLevel;
+      }
 
-        this.getBatLvlFinished = true;
-      });
+      this.getBatLvlFinished = true;
+    });
   }
 
   handleCurrentRelativeHumidityGet() {
