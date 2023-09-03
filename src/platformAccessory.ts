@@ -74,7 +74,7 @@ export class VacuumRoom {
 
             this.myLogger(`Room ${this.accLogName}): vacuumStatus = '${this.currentStatus}'`);
 
-            if( this.currentStatus === 'VacuumMode.SWEEPING' ) {
+            if( this.currentStatus === 'VacuumMode.SWEEPING' || this.currentStatus === 'VacuumMode.CLEANING' ) {
               //
               // Abort this request
               //
@@ -174,7 +174,7 @@ export class VacuumRoom {
 
             this.myLogger(`in setInterval(), this.currentStatus = '${this.currentStatus}'`);
             if( isSweeping ) {    // Waiting for vacuum to finish
-              if( this.currentStatus !== 'VacuumMode.SWEEPING' ) {
+              if( this.currentStatus !== 'VacuumMode.SWEEPING' && this.currentStatus !== 'VacuumMode.CLEANING' ) {
                 isSweeping = false;
                 clearInterval( intervalID );  // Stop checking.
                 this.myLogger('in setInterval(): Clearing currentRoomName, turning switch icon off');
@@ -183,7 +183,7 @@ export class VacuumRoom {
                 this.robovac.log.info(`Finished sweeping room '${roomName}'(${this.deviceNickname})`);
               }
             } else {              // Waiting for vacuum to start
-              if( this.currentStatus === 'VacuumMode.SWEEPING' ) {
+              if( this.currentStatus === 'VacuumMode.SWEEPING' || this.currentStatus === 'VacuumMode.CLEANING' ) {
                 isSweeping = true;
               }
             }
