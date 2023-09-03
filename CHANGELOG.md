@@ -2,6 +2,12 @@
 
 All changes to the software will be documented here.
 
+## V1.4.1
+- Updated  CHANGELOG.md
+
+## V1.4.0
+- Updated authentication process to utilize API_KEY and KEY_ID.
+
 ## V1.3.1
 - Fixed dependency error
 
@@ -12,7 +18,6 @@ All changes to the software will be documented here.
 - If you start sweeping a room that is on a different floor than the 'current' floor shown in the Wyze app, the plugin will cause the map shown in the app to change to the floor the room being swept is on.
 - Updating from a previous version of the plugin will most likely cause the existing vacuum accessory switches to be orphaned and non-responsive. If this happens you will need to use the Homebridge UI (Homebridge Settings) to remove the cache entries for those
  accessories.
-- If you do not have the multi-floor firmware there is no need to upgrade to this version. 
 
 ## V1.2.1 
 - Fixed typos in README.md
