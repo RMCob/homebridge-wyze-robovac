@@ -13,19 +13,16 @@ Since HomeKit does not yet have a 'smart vacuum' framework, this plugin creates 
 
 In the Home app, create a room named 'Vacuum' and move all the new switch accessories and the faux humidity sensor into that room. You can then say "Hey Siri, vacuum living room on" and the magic happens. :-) If you have multiple vacums the configuration is a bit more involved. See below.
 
-If you are upgrading from a version < 1.3.0, please read the Caveats section befor installing.
 ## Requirements
 
-Python version must be >= 3.7.3. The README for wyze-sdk indicates >= 3.8, but 3.7.3 is the latest available for Debian on the RPi and it seems to be working ok.
+Python version must be >= 3.8.3. 
 
-wyze-sdk must be >= 1.5.0. Installation instructions are here: https://github.com/shauntarves/wyze-sdk. If you cannot upgrade Python to 3.8, here are the steps to install wyze-sdk manually:
-- Download the zipfile for wyze-sdk from github and unzip it locally.
-- cd into wyze-sdk-master and edit setup.py, changing 3.8.0 to 3.7.3, and save file.
-- Install it from the current directory: $ sudo pip3 install .
+wyze-sdk must be >= 2.0.0. Installation instructions are here: https://github.com/shauntarves/wyze-sdk.
+
+Visit the Wyze developer API portal to generate an API ID/KEY: https://developer-api-console.wyze.com/#/apikey/view.
+This info is used in the Settings UI. See the **`Configuration`** section below. Be careful to check that the generated keys do not contain any 'shell' special characters like '*' or '|' (vertical bar). If they do, delete the keys (via the web browser interface) and regenerate them.
 
 ## Caveats
-
-- **If you do not have the multi-floor firmware and your current version is 1.2.1 there is no need to upgrade to this version.**
 
 - This plugin was developed and proved-in on a Rpi 4 running the latest version of Raspbian Linux (5.10.103-v7l+ #1529), and HomeBridge with the homebridge-ui-x plugin. If you are running in ANY other environment (Windows, Mac OS, Docker, Home Assistant, Synergy NAS, etc.) and have any issues with installation and or running, you are on your own. If you are successful in alternate environments I welcome your feedback so I can document it here.
 
@@ -52,7 +49,7 @@ If you start the vacuum sweeping and then try to turn on a different room 'switc
 
 ## Configuration
 
-Use the settings UI in Homebridge Config UI X to configure your Wyze account, or manually add the following to the platforms section of your config file:
+Use the settings UI in Homebridge Config UI X to configure your Wyze account, or manually add the following to the platforms section of your config file. See the **`Requirements`** section above for instructions on how to get your API_KEY and KEY_ID:
 
 ```js
 {
@@ -63,6 +60,8 @@ Use the settings UI in Homebridge Config UI X to configure your Wyze account, or
       "username": "YOUR_EMAIL",
       "password": "YOUR_PASSWORD",
       "mfaCode": "YOUR_2FA_AUTHENTICATION_PIN",
+      "key_id": "YOUR WYZE ACCOUNT KEY_ID",
+      "api_key": "YOUR WYZE ACCOUNT API_KEY",
       "statusCheckRefreshInterval": "Refresh Interval for status checks after sweeping starts. Default 30 sec",
       "idleBatteryCheckRefreshInterval": "Refresh Interval for battery checks when idle. Default 1800 seconds (30 min)",
       "busyBatteryCheckRefreshInterval": "Refresh Interval for battery checks when busy or charge level < 100. Default 120 seconds (2 min)",

@@ -26,6 +26,20 @@
         "default": "",
         "required": true
       },
+      "key_id": {
+        "title": "Key Id",
+        "description": "The Key Id that was generated for your Wyze account",
+        "type": "string",
+        "default": "",
+        "required": true
+      },
+      "api_key": {
+        "title": "Api Key",
+        "description": "The Api Key that was generated for your Wyze account",
+        "type": "string",
+        "default": "",
+        "required": true
+      },
       "mfaCode": {
         "title": "One-time Password (for two-factor authentication)",
         "description": "Only required for initial login if you have two-factor authentication enabled on your Wyze account",

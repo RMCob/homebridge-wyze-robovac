@@ -58,7 +58,8 @@ export class VacuumRoom {
     if( this.isOn ) {
       if( currentlySweeping === '' ) { // Check that the vacuum is really idle
 
-        exec(`python3 ${this.p2stubs}/getVacuumStatus.py ${this.username} ${this.robovac.config.password} '${this.deviceNickname}'`,
+        const tmpstr = `${this.robovac.config.key_id} ${this.robovac.config.api_key} '${this.deviceNickname}'`;
+        exec(`python3 ${this.p2stubs}/getVacuumStatus.py ${this.username} ${this.robovac.config.password} ${tmpstr}`,
           (error, stdout, stderr) => {
             if (error) {
               this.robovac.log.info(`error: ${error.message}`);
@@ -157,7 +158,8 @@ export class VacuumRoom {
       // Start loop to check vacuum status
       //
       intervalID = setInterval(() => {
-        exec(`python3 ${this.p2stubs}/getVacuumStatus.py ${this.username} ${this.robovac.config.password} '${this.deviceNickname}'`,
+        const tmpstr = `${this.robovac.config.key_id} ${this.robovac.config.api_key} '${this.deviceNickname}'`;
+        exec(`python3 ${this.p2stubs}/getVacuumStatus.py ${this.username} ${this.robovac.config.password} ${tmpstr}`,
           (error, stdout, stderr) => {
             if (error) {
               this.robovac.log.info(`error: ${error.message}`);
@@ -195,7 +197,8 @@ export class VacuumRoom {
       clearInterval( intervalID );
     }
 
-    exec(`python3 ${this.p2stubs}/${py_prog}.py ${this.username} ${this.robovac.config.password} '${this.deviceNickname}' '${room2sweep}'`,
+    const tmpstr = `${this.robovac.config.key_id} ${this.robovac.config.api_key} '${this.deviceNickname}' '${room2sweep}'`;
+    exec(`python3 ${this.p2stubs}/${py_prog}.py ${this.username} ${this.robovac.config.password}  ${tmpstr}`,
       (error, stdout, stderr) => {
         if (error) {
           this.robovac.log.info(`error: ${error.message}`);
@@ -211,8 +214,9 @@ export class VacuumRoom {
 
   setCurrentFloorMap( floorName ) {
     const floor = floorName;
-    const tmpStr = `${this.robovac.config.username} ${this.robovac.config.password} '${this.deviceNickname}' '${floor}'`;
-    exec(`python3 ${this.robovac.config.path2py_stubs}/setVacuumFloor.py ` + tmpStr,
+    const tmpstr1 = `${this.robovac.config.username} ${this.robovac.config.password}`;
+    const tmpstr2 = `${this.robovac.config.key_id} ${this.robovac.config.api_key} '${this.deviceNickname}' '${floor}'`;
+    exec(`python3 ${this.robovac.config.path2py_stubs}/setVacuumFloor.py ${tmpstr1} ${tmpstr2}`,
       (error, stdout, stderr) => {
         if (error) {
           this.robovac.log.info(`error: ${error.message}`);
@@ -295,6 +299,7 @@ export class BatteryLevel {
     private readonly floorName: string,
   ) {
 
+    // eslint-disable-next-line  @typescript-eslint/no-this-alias
     myBatteryLevel = this;
 
     // set accessory information
@@ -390,7 +395,8 @@ export class BatteryLevel {
   }
 
   async getBatLvl() {
-    await exec(`python3 ${this.p2stubs}/getVacuumBatLevel.py ${this.username} ${this.robovac.config.password} '${this.deviceNickname}'`,
+    const tmpstr = `${this.robovac.config.password} ${this.robovac.config.key_id} ${this.robovac.config.api_key} '${this.deviceNickname}'`;
+    await exec(`python3 ${this.p2stubs}/getVacuumBatLevel.py ${this.username} ${tmpstr}`,
       (error, stdout, stderr) => {
         if (error) {
           this.robovac.log.info(`error: ${error.message}`);

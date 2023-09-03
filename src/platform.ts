@@ -26,9 +26,11 @@ export class WyzeRoboVac implements DynamicPlatformPlugin {
     public readonly api: API,
   ) {
     // Validate configuration
-    if ( this.config.name === undefined || this.config.username === undefined || this.config.password === undefined ) {
+    if ( this.config.name === undefined || this.config.username === undefined ||
+         this.config.password === undefined || this.config.key_id === undefined ||
+         this.config.api_key === undefined ) {
       log.error('INVALID CONFIGURATION FOR PLUGIN: homebridge-wyze-robovac');
-      log.error('name, username and/or password not set. Plugin not started.');
+      log.error('name, username, password, key_id and/or api_key not set. Plugin not started.');
       return;
     }
 
@@ -63,7 +65,9 @@ export class WyzeRoboVac implements DynamicPlatformPlugin {
     // Make list of nicknames for each vacuum.
     //
     this.myLogger(`discoverDevices(): username = '${this.config.username}', password = '${this.config.password}'`);
-    exec(`python3 ${this.config.path2py_stubs}/getVacuumDeviceList.py ${this.config.username} ${this.config.password}`,
+    this.myLogger(`discoverDevices(): key_id = '${this.config.key_id}', api_key = '${this.config.api_key}'`);
+    const tmpstr = `${this.config.username} ${this.config.password} ${this.config.key_id}  ${this.config.api_key}`;
+    exec(`python3 ${this.config.path2py_stubs}/getVacuumDeviceList.py ${tmpstr}`,
       (error, stdout, stderr) => {
         if (error) {
           this.log.info(`error: ${error.message}`);
@@ -99,7 +103,8 @@ export class WyzeRoboVac implements DynamicPlatformPlugin {
     //
     // Get list of rooms from Wyze from the current map for this device
     //
-    exec(`python3 ${this.config.path2py_stubs}/getVacuumFloors.py ${this.config.username} ${this.config.password} '${nickName}'`,
+    const tmpstr = `${this.config.password} ${this.config.key_id} ${this.config.api_key} '${nickName}'`;
+    exec(`python3 ${this.config.path2py_stubs}/getVacuumFloors.py ${this.config.username} ${tmpstr}`,
       (error, stdout, stderr) => {
         if (error) {
           this.log.info(`error: ${error.message}`);
@@ -142,7 +147,6 @@ export class WyzeRoboVac implements DynamicPlatformPlugin {
           if (existingAccessory) {
             // the accessory already exists
             this.log.info(`Restoring existing accessory from cache: '${existingAccessory.displayName}'` + tmpStr);
-
 
             // create the accessory handler for the restored accessory
             // this is imported from `platformAccessory.ts`
