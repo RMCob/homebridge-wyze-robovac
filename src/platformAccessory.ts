@@ -67,7 +67,6 @@ export class VacuumRoom {
             }
             if (stderr) {
               this.robovac.log.info(`stderr: ${stderr}`);
-              return;
             }
 
             this.currentStatus = stdout.slice(0, -1);  // Strip off trailing newline ('\n')
@@ -167,7 +166,6 @@ export class VacuumRoom {
             }
             if (stderr) {
               this.robovac.log.info(`stderr: ${stderr}`);
-              return;
             }
 
             this.currentStatus = stdout.slice(0, -1);  // Strip off trailing newline ('\n')
@@ -206,7 +204,6 @@ export class VacuumRoom {
         }
         if (stderr) {
           this.robovac.log.info(`stderr: ${stderr}`);
-          return;
         }
         this.myLogger(`stdout: ${stdout.slice(0, -1)}`); // Strip off trailing newline ('\n')
       });
@@ -224,9 +221,12 @@ export class VacuumRoom {
         if (stderr) {
           this.robovac.log.info(`stderr: ${stderr}`);
         }
-        if (error || stderr) {
-          return;
-        }
+
+        /*
+ *      if (error || stderr) {
+ *         return;
+ *      }
+         */
         this.myLogger(`Current map set to floor '${floor}'`);
       },
     );

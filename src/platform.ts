@@ -75,7 +75,6 @@ export class WyzeRoboVac implements DynamicPlatformPlugin {
         }
         if (stderr) {
           this.log.info(`stderr: ${stderr}`);
-          return;
         }
         let line = '';
 
@@ -112,7 +111,6 @@ export class WyzeRoboVac implements DynamicPlatformPlugin {
         }
         if (stderr) {
           this.log.info(`stderr: ${stderr}`);
-          return;
         }
         let line = '';
 
