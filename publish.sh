@@ -7,8 +7,8 @@ npm audit
 if  npm run lint; then
   if npm run build; then
     git add .
-    npm version minor -m "$1" --force
-    npm publish --tag --otp XXXXXX latest  ## XXXXXX comes from Authy app
+    npm version patch -m "$1" --force
+    npm publish --tag latest --otp XXXXXX  ## XXXXXX comes from Authy app
     git commit -m "$1"
     git push "https://github.com/RMCob/homebridge-wyze-robovac.git" master --tags  ### password is GitHub Personal Token
   else

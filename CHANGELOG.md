@@ -2,7 +2,7 @@
 
 All changes to the software will be documented here.
 
-## V1.4.2
+## V1.5.0
 - Do not abort if wyze_sdk reports finding unknown devices.
 
 ## V1.4.1
