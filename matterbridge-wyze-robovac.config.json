@@ -1,0 +1,17 @@
+{
+  "name": "matterbridge-wyze-robovac",
+  "type": "DynamicPlatform",
+  "whiteList": [],
+  "blackList": [],
+  "enableServerRvc": true,
+  "username": "",
+  "password": "",
+  "key_id": "",
+  "api_key": "",
+  "mfaCode": "",
+  "busyStatusCheckRefreshInterval": 30,
+  "idleStatusCheck1RefreshInterval": 1800,
+  "idleStatusCheck2RefreshInterval": 120,
+  "path2py_stubs": "/home/pi/Matterbridge/matterbridge-wyze-robovac/py_helpers",
+  "debugLevel": 0
+}

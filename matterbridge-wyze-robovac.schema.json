@@ -1,0 +1,109 @@
+{
+  "title": "Matterbridge Wyze RoboVac plugin",
+  "description": "matterbridge-wyze-robovac",
+  "type": "object",
+  "required": ["username", "password", "key_id", "api_key"],
+  "properties": {
+    "name": {
+      "description": "Plugin name",
+      "type": "string",
+      "readOnly": true,
+      "ui:widget": "hidden"
+    },
+    "type": {
+      "description": "Plugin type",
+      "type": "string",
+      "readOnly": true,
+      "ui:widget": "hidden"
+    },
+    "whiteList": {
+      "description": "(ONLY SET IF YOU HAVE MULTIPLE VACUUMS) Only THE FIRST ONE device with <Name>-<duid> in the list will be exposed. If the list is empty, THE FIRST device will be exposed.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true,
+      "selectFrom": "name"
+    },
+    "blackList": {
+      "description": "The devices in the list will not be exposed. If the list is empty, no devices will be excluded.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true,
+      "selectFrom": "name"
+    },
+    "enableServerRvc": {
+      "description": "Enable the Robot Vacuum Cleaner in server mode (Apple Home will crash unless you use this mode!)",
+      "type": "boolean",
+      "default": true
+    },
+    "username": {
+        "title": "Wyze Username (E-Mail Address)",
+        "description": "The e-mail address used for your Wyze account (Required for the plugin to work)",
+        "type": "string",
+        "default": ""
+      },
+      "password": {
+        "title": "Password",
+        "description": "The password used for your Wyze account (Required for the plugin to work)",
+        "type": "string",
+        "default": ""
+      },
+      "key_id": {
+        "title": "Key Id",
+        "description": "The Key Id that was generated for your Wyze account (Required for the plugin to work)",
+        "type": "string",
+        "default": ""
+      },
+      "api_key": {
+        "title": "Api Key",
+        "description": "The Api Key that was generated for your Wyze account (Required for the plugin to work)",
+        "type": "string",
+        "default": ""
+      },
+      "mfaCode": {
+        "title": "One-time Password (for two-factor authentication)",
+        "description": "Only required for initial login if you have two-factor authentication enabled on your Wyze account",
+        "type": "string",
+        "default": ""
+      },
+      "busyStatusCheckRefreshInterval": {
+        "title": "Busy status Check Refresh Interval",
+        "description": "Specify the number of seconds to wait between status checks when the vacuum is sweeping. Default is 45 seconds. Minimum is 25 seconds, Values less than 30 seconds are discouraged. The wyze server gets unhappy when you poll it too much.",
+        "type": "number",
+        "default": 45,
+        "minimum": 25
+      },
+      "idleStatusCheck1RefreshInterval": {
+        "title": "Idle status Check Refresh Interval with full charge",
+        "description": "Specify the number of seconds to wait between status checks when the vacuum is is docked and at 100% charge. Default is 1800 seconds (30 min). Minimum is 300 seconds (5 min). Maxumum is 3600 (1 hr).",
+        "type": "number",
+        "default": 1800,
+        "minimum": 300,
+        "maximum": 3600
+      },
+      "idleStatusCheck2RefreshInterval": {
+        "title": "Idle status Check Refresh Interval with less than full charge",
+        "description": "Specify the number of seconds to wait between status checks when the vacuum is docked at less than 100% charge. Default is 120 seconds (2 min). Minimum is 60 seconds (1 min)",
+        "type": "number",
+        "default": 120,
+        "minimum": 60
+      },
+      "path2py_stubs": {
+        "title": "Path to Python helper scripts",
+        "description": "The location where the Python helper scripts are installed. (<Plugin_Install_Directory>/py_helpers)",
+        "type": "string",
+        "default": "/usr/lib/node_modules/matterbridge-wyze-robovac/py_helpers"
+      },
+      "debugLevel": {
+        "title": "Debug Level",
+        "description": "Specify the Debug Level. 0 ==> no debug output, 1 ==> debug output to Matterbridge logfile, 2 ==> system level logging",
+        "type": "number",
+        "default": 0,
+        "minimum": 0,
+        "maximum": 2
+      }
+  }
+}
