@@ -166,7 +166,7 @@ export class RoboVacMatterbridgeDynamicPlatform extends MatterbridgeDynamicPlatf
     //   createDefaultBridgedDeviceBasicInformationClusterServer(this.nickname, this.macAddr, 0xfff1, 'Wyze', 'MyToy');
 
     if (this.config.enableServerRvc === true) {
-      this.log.notice('RVC is in server mode 44');
+      this.log.notice('RVC is in server mode 55');
     }
 
     this.roboticVacuum.addCommandHandler('pause', async () => {
